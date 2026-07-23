@@ -229,6 +229,14 @@ async function addContent(section) {
         saveData(dataKey, data);
         textarea.value = '';
         renderPage(section === 'mc' ? 'minecraft' : section);
+        
+        // Предлагаем скачать data.json
+        if (isAdmin) {
+            setTimeout(() => {
+                const shouldDownload = confirm('Текст добавлен! Скачать обновлённый data.json для GitHub?');
+                if (shouldDownload) downloadDataFile();
+            }, 300);
+        }
         return;
     }
     
@@ -240,7 +248,6 @@ async function addContent(section) {
     const fileType = getFileType(file.name);
     const fileName = file.name;
     
-    // Сохраняем в Base64 для локального использования
     const base64Data = await new Promise(r => { 
         const reader = new FileReader(); 
         reader.onload = () => r(reader.result); 
@@ -254,10 +261,10 @@ async function addContent(section) {
     fileInput.value = '';
     renderPage(section === 'mc' ? 'minecraft' : section);
     
-    // Предлагаем скачать обновлённый data.json
+    // Предлагаем скачать data.json
     if (isAdmin) {
         setTimeout(() => {
-            const shouldDownload = confirm('Файл добавлен! Скачать обновлённый data.json для загрузки на GitHub?');
+            const shouldDownload = confirm('Файл добавлен! Скачать обновлённый data.json для GitHub?');
             if (shouldDownload) downloadDataFile();
         }, 300);
     }
