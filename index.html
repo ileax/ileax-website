@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ILEAX</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <!-- Главная страница -->
+    <div id="home-page" class="page active">
+        <div class="home-container">
+            <h1 class="glitch" data-text="ILEAX">ILEAX</h1>
+            <p class="subtitle">Выбери раздел, чтобы посмотреть мои работы</p>
+            <div class="main-menu">
+                <button class="menu-btn music-btn" onclick="navigateTo('music')">
+                    <i class="fas fa-music"></i> Музыка
+                </button>
+                <button class="menu-btn minecraft-btn" onclick="navigateTo('minecraft')">
+                    <i class="fas fa-cube"></i> Майнкрафт
+                </button>
+                <button class="menu-btn games-btn" onclick="navigateTo('games')">
+                    <i class="fas fa-gamepad"></i> Игры
+                </button>
+                <button class="menu-btn other-btn" onclick="navigateTo('other')">
+                    <i class="fas fa-ellipsis-h"></i> Прочее
+                </button>
+            </div>
+            <button class="menu-btn contacts-btn" onclick="navigateTo('contacts')">
+                <i class="fas fa-address-book"></i> Контакты и Соцсети
+            </button>
+        </div>
+    </div>
+
+    <!-- Страница Музыки -->
+    <div id="music-page" class="page">
+        <button class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Назад</button>
+        <h2><i class="fas fa-headphones"></i> Моя Музыка</h2>
+        <div id="music-list" class="content-list scrollable"></div>
+        <div id="admin-music-upload" class="admin-zone" style="display: none;">
+            <h3>Добавить контент</h3>
+            <select id="music-content-type" onchange="toggleContentType('music')">
+                <option value="file">Загрузить файл</option>
+                <option value="text">Текстовый блок</option>
+            </select>
+            <div id="music-file-inputs">
+                <input type="text" id="new-music-title" placeholder="Название">
+                <input type="file" id="new-music-file" accept="*">
+            </div>
+            <div id="music-text-inputs" style="display: none;">
+                <textarea id="new-music-text" placeholder="Введите текст..."></textarea>
+            </div>
+            <button onclick="addContent('music')">Добавить</button>
+        </div>
+    </div>
+
+    <!-- Страница Майнкрафт Проектов -->
+    <div id="minecraft-page" class="page">
+        <button class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Назад</button>
+        <h2><i class="fas fa-cubes"></i> Майнкрафт Проекты</h2>
+        <div id="minecraft-list" class="content-list scrollable"></div>
+        <div id="admin-mc-upload" class="admin-zone" style="display: none;">
+            <h3>Добавить контент</h3>
+            <select id="mc-content-type" onchange="toggleContentType('mc')">
+                <option value="file">Загрузить файл</option>
+                <option value="text">Текстовый блок</option>
+            </select>
+            <div id="mc-file-inputs">
+                <input type="text" id="new-mc-title" placeholder="Название">
+                <input type="file" id="new-mc-file" accept="*">
+            </div>
+            <div id="mc-text-inputs" style="display: none;">
+                <textarea id="new-mc-text" placeholder="Введите текст..."></textarea>
+            </div>
+            <button onclick="addContent('mc')">Добавить</button>
+        </div>
+    </div>
+
+    <!-- Страница Игр -->
+    <div id="games-page" class="page">
+        <button class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Назад</button>
+        <h2><i class="fas fa-dice-d6"></i> Мои Игры</h2>
+        <div id="games-list" class="content-list scrollable"></div>
+        <div id="admin-games-upload" class="admin-zone" style="display: none;">
+            <h3>Добавить контент</h3>
+            <select id="games-content-type" onchange="toggleContentType('games')">
+                <option value="file">Загрузить файл</option>
+                <option value="text">Текстовый блок</option>
+            </select>
+            <div id="games-file-inputs">
+                <input type="text" id="new-games-title" placeholder="Название">
+                <input type="file" id="new-games-file" accept="*">
+            </div>
+            <div id="games-text-inputs" style="display: none;">
+                <textarea id="new-games-text" placeholder="Введите текст..."></textarea>
+            </div>
+            <button onclick="addContent('games')">Добавить</button>
+        </div>
+    </div>
+
+    <!-- Страница Прочее -->
+    <div id="other-page" class="page">
+        <button class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Назад</button>
+        <h2><i class="fas fa-box-open"></i> Прочее</h2>
+        <div id="other-list" class="content-list scrollable"></div>
+        <div id="admin-other-upload" class="admin-zone" style="display: none;">
+            <h3>Добавить контент</h3>
+            <select id="other-content-type" onchange="toggleContentType('other')">
+                <option value="file">Загрузить файл</option>
+                <option value="text">Текстовый блок</option>
+            </select>
+            <div id="other-file-inputs">
+                <input type="text" id="new-other-title" placeholder="Название">
+                <input type="file" id="new-other-file" accept="*">
+            </div>
+            <div id="other-text-inputs" style="display: none;">
+                <textarea id="new-other-text" placeholder="Введите текст..."></textarea>
+            </div>
+            <button onclick="addContent('other')">Добавить</button>
+        </div>
+    </div>
+
+    <!-- Страница Контактов -->
+    <div id="contacts-page" class="page">
+        <button class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Назад</button>
+        <h2><i class="fas fa-id-card"></i> Контакты</h2>
+        <div class="contacts-grid-2x2">
+            <a href="https://t.me/bm_ileax" class="contact-card-large" target="_blank">
+                <i class="fab fa-telegram"></i>
+                <span>Telegram</span>
+                <small>bm_ileax</small>
+            </a>
+            <a href="https://youtube.com/@cookie2457" class="contact-card-large" target="_blank">
+                <i class="fab fa-youtube"></i>
+                <span>YouTube</span>
+                <small>@cookie2457</small>
+            </a>
+            <a href="https://tiktok.com/@bm.ileax" class="contact-card-large" target="_blank">
+                <i class="fab fa-tiktok"></i>
+                <span>TikTok</span>
+                <small>@bm.ileax</small>
+            </a>
+            <a href="https://pinterest.com/bm_ileax" class="contact-card-large" target="_blank">
+                <i class="fab fa-pinterest"></i>
+                <span>Pinterest</span>
+                <small>bm_ileax</small>
+            </a>
+        </div>
+    </div>
+
+    <!-- Лайтбокс -->
+    <div id="lightbox" class="lightbox">
+        <span class="close-lightbox" onclick="closeLightbox()">&times;</span>
+        <img id="lightbox-img" src="" alt="">
+        <p id="lightbox-caption"></p>
+    </div>
+
+    <!-- Аудиоплеер -->
+    <audio id="audio-player" preload="auto"></audio>
+
+    <!-- Кнопка админа -->
+    <div class="admin-login">
+        <button id="admin-toggle-btn" onclick="toggleAdmin()"><i class="fas fa-lock"></i></button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
