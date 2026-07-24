@@ -28,7 +28,7 @@ async function loadDataFromGitHub() {
         const response = await fetch(DATA_FOLDER + '/data.json');
         if (response.ok) {
             const remoteData = await response.json();
-            // Сохраняем в localStorage
+            // ВСЕГДА загружаем свежие данные с GitHub
             if (remoteData.music_data) saveData('music_data', remoteData.music_data);
             if (remoteData.minecraft_data) saveData('minecraft_data', remoteData.minecraft_data);
             if (remoteData.games_data) saveData('games_data', remoteData.games_data);
@@ -61,14 +61,16 @@ function downloadDataFile() {
 }
 
 async function initData() {
-    // Пробуем загрузить с GitHub
+    // ВСЕГДА загружаем данные с GitHub (перезаписывает localStorage)
     const loaded = await loadDataFromGitHub();
     
-    // Если не загрузилось — создаём пустые
-    if (!localStorage.getItem('music_data')) saveData('music_data', []);
-    if (!localStorage.getItem('minecraft_data')) saveData('minecraft_data', []);
-    if (!localStorage.getItem('games_data')) saveData('games_data', []);
-    if (!localStorage.getItem('other_data')) saveData('other_data', []);
+    // Если GitHub недоступен — оставляем что есть
+    if (!loaded) {
+        if (!localStorage.getItem('music_data')) saveData('music_data', []);
+        if (!localStorage.getItem('minecraft_data')) saveData('minecraft_data', []);
+        if (!localStorage.getItem('games_data')) saveData('games_data', []);
+        if (!localStorage.getItem('other_data')) saveData('other_data', []);
+    }
 }
 
 function getFileUrl(item) {
