@@ -22,13 +22,11 @@ function saveData(key, data) {
     catch (e) {}
 }
 
-// Загрузка данных с GitHub
 async function loadDataFromGitHub() {
     try {
         const response = await fetch(DATA_FOLDER + '/data.json');
         if (response.ok) {
             const remoteData = await response.json();
-            // ВСЕГДА загружаем свежие данные с GitHub
             if (remoteData.music_data) saveData('music_data', remoteData.music_data);
             if (remoteData.minecraft_data) saveData('minecraft_data', remoteData.minecraft_data);
             if (remoteData.games_data) saveData('games_data', remoteData.games_data);
@@ -39,19 +37,23 @@ async function loadDataFromGitHub() {
     return false;
 }
 
-// Экспорт данных для GitHub
 function exportAllData() {
+    const cleanData = (items) => items.map(item => {
+        const { data, ...clean } = item;
+        return clean;
+    });
+    
     return {
-        music_data: getData('music_data'),
-        minecraft_data: getData('minecraft_data'),
-        games_data: getData('games_data'),
-        other_data: getData('other_data')
+        music_data: cleanData(getData('music_data')),
+        minecraft_data: cleanData(getData('minecraft_data')),
+        games_data: cleanData(getData('games_data')),
+        other_data: cleanData(getData('other_data'))
     };
 }
 
 function downloadDataFile() {
-    const data = exportAllData();
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const exportData = exportAllData();
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -61,10 +63,8 @@ function downloadDataFile() {
 }
 
 async function initData() {
-    // ВСЕГДА загружаем данные с GitHub (перезаписывает localStorage)
     const loaded = await loadDataFromGitHub();
     
-    // Если GitHub недоступен — оставляем что есть
     if (!loaded) {
         if (!localStorage.getItem('music_data')) saveData('music_data', []);
         if (!localStorage.getItem('minecraft_data')) saveData('minecraft_data', []);
@@ -75,6 +75,7 @@ async function initData() {
 
 function getFileUrl(item) {
     if (item.fileName) return DATA_FOLDER + '/' + item.fileName;
+    if (item.data && item.data.startsWith('data:')) return item.data;
     return '';
 }
 
@@ -231,14 +232,6 @@ async function addContent(section) {
         saveData(dataKey, data);
         textarea.value = '';
         renderPage(section === 'mc' ? 'minecraft' : section);
-        
-        // Предлагаем скачать data.json
-        if (isAdmin) {
-            setTimeout(() => {
-                const shouldDownload = confirm('Текст добавлен! Скачать обновлённый data.json для GitHub?');
-                if (shouldDownload) downloadDataFile();
-            }, 300);
-        }
         return;
     }
     
@@ -250,26 +243,12 @@ async function addContent(section) {
     const fileType = getFileType(file.name);
     const fileName = file.name;
     
-    const base64Data = await new Promise(r => { 
-        const reader = new FileReader(); 
-        reader.onload = () => r(reader.result); 
-        reader.readAsDataURL(file); 
-    });
-    
-    data.unshift({ type: fileType, title: title, fileName: fileName, data: base64Data, id: Date.now() });
+    data.unshift({ type: fileType, title: title, fileName: fileName, id: Date.now() });
     saveData(dataKey, data);
     
     document.getElementById(`new-${section}-title`).value = '';
     fileInput.value = '';
     renderPage(section === 'mc' ? 'minecraft' : section);
-    
-    // Предлагаем скачать data.json
-    if (isAdmin) {
-        setTimeout(() => {
-            const shouldDownload = confirm('Файл добавлен! Скачать обновлённый data.json для GitHub?');
-            if (shouldDownload) downloadDataFile();
-        }, 300);
-    }
 }
 
 // ============ УДАЛЕНИЕ ============
@@ -284,13 +263,6 @@ function deleteItem(section, index) {
     data.splice(index, 1);
     saveData(dataKeyMap[section], data);
     renderPage(section);
-    
-    if (isAdmin) {
-        setTimeout(() => {
-            const shouldDownload = confirm('Элемент удалён! Скачать обновлённый data.json?');
-            if (shouldDownload) downloadDataFile();
-        }, 300);
-    }
 }
 
 // ============ DRAG AND DROP ============
@@ -315,7 +287,6 @@ function handleDragStart(e) {
     card.classList.add('dragging');
     e.dataTransfer.effectAllowed = 'move';
 }
-
 function handleDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; const card = e.target.closest('.content-card'); if (card) card.classList.add('drag-over'); }
 function handleDragLeave(e) { const card = e.target.closest('.content-card'); if (card) card.classList.remove('drag-over'); }
 
@@ -334,7 +305,6 @@ function handleDrop(e) {
     saveData(dataKeyMap[draggedSection], data);
     renderPage(sectionMap[draggedSection]);
 }
-
 function handleDragEnd(e) {
     const card = e.target.closest('.content-card');
     if (card) card.classList.remove('dragging');
@@ -412,7 +382,6 @@ function renderPage(page) {
 window.onload = async () => { 
     await initData(); 
     updateAdminUI(); 
-    renderPage('music');
 };
 document.addEventListener('click', function(e) { if (e.target === document.getElementById('lightbox')) closeLightbox(); });
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
